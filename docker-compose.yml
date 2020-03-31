@@ -1,0 +1,55 @@
+{
+    "version": "3",
+    "volumes": {
+        "mysql_data": {}
+    },
+    "services": {
+        "mysql": {
+            "image": "mysql",
+            "environment": {
+              "MYSQL_RANDOM_ROOT_PASSWORD": "true",
+              "MYSQL_USER": "whatsnep",
+              "MYSQL_PASSWORD": "5Cb=;e",
+              "MYSQL_DATABASE": "whatsnep_messenger",
+            },
+            "volumes": [
+                "mysql_data:/var/lib/mysql/"
+            ]
+        },
+        "php-fpm": {
+            "build": {
+                "context": "./php/",
+                "dockerfile": "Dockerfile-php-fpm"
+            },
+            "volumes": [
+                "./php/:/var/www/html/"
+            ],
+            "depends_on": [
+                "mysql"
+            ]
+        },
+        "nginx": {
+            "image": "nginx:alpine",
+            "volumes": [
+                "./php/:/var/www/",
+                "./php/nginx.php-fpm.conf:/etc/nginx/nginx.conf:ro"
+            ],
+            "ports": [
+                "80:80"
+            ],
+            "depends_on": [
+                "php-fpm"
+            ]
+        },
+        "adminer": {
+            "image": "adminer",
+            "restart": "always",
+            "ports": [
+                "8080:8080"
+            ],
+            "depends_on": [
+                "mysql"
+            ]
+        }
+    }
+}
